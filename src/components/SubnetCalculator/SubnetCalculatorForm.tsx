@@ -1,60 +1,56 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import IpAddressInput from "./IpAddressInput";
 import NumberInput from "./NumberInput";
 import Select from "./Select";
 import CalculateButton from "./CalculateButton";
-import { ipToInt, cidrToMaskInt, getNetworkAddressInt } from "@/lib/ipUtils";
+import { useSubnetCalculator } from "@/hooks/useSubnetCalculator";
 
-const SubnetCalculatorForm = () => {
+interface SubnetCalculatorFormProps {
+  onCalculate: (results: any[]) => void;
+}
+
+const SubnetCalculatorForm = ({ onCalculate }: SubnetCalculatorFormProps) => {
   const [lanAddress, setLanAddress] = useState("");
   const [subnetCount, setSubnetCount] = useState("");
   const [dhcpPool, setDhcpPool] = useState("");
-  const [dhcpPosition, setDhcpPosition] = useState("start");
+  const [dhcpPosition, setDhcpPosition] = useState<"start" | "end">("start");
   const [ppd, setPpd] = useState("");
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  const { toast } = useToast();
+  const { calculateSubnets, results, error } = useSubnetCalculator();
 
   const handleCalculate = () => {
+    setIsCalculating(true);
     try {
-      // Basic validation
-      if (!lanAddress || !lanAddress.includes('/')) {
-        console.error("Invalid LAN address (CIDR format required)");
-        return;
-      }
-
-      const [lanIpStr, initialCidrStr] = lanAddress.split('/');
-      const initialCidr = parseInt(initialCidrStr, 10);
-      const lanIpInt = ipToInt(lanIpStr);
-      
-      if (isNaN(initialCidr) || initialCidr < 0 || initialCidr > 32) {
-        console.error("Invalid initial CIDR");
-        return;
-      }
-
-      // Calculate subnet bits needed
-      const numSubnetsVal = parseInt(subnetCount, 10);
-      const subnetBitsNeeded = Math.ceil(Math.log2(numSubnetsVal));
-      const newCidr = initialCidr + subnetBitsNeeded;
-
-      if (newCidr > 30) {
-        console.error(`Cannot create ${numSubnetsVal} subnets (/${newCidr}). Max mask /30.`);
-        return;
-      }
-
-      const initialNetworkBlockInt = getNetworkAddressInt(lanIpInt, cidrToMaskInt(initialCidr));
-      
-      console.log("Calculating with values:", {
+      calculateSubnets({
         lanAddress,
         subnetCount,
         dhcpPool,
         dhcpPosition,
-        ppd,
-        initialNetworkBlockInt
+        ppd
       });
-      
-      // This will be expanded with the full calculation logic in the next iteration
-    } catch (error) {
-      console.error("Calculation error:", error);
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error
+        });
+      } else {
+        onCalculate(results);
+      }
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err instanceof Error ? err.message : "Calculation error"
+      });
+    } finally {
+      setIsCalculating(false);
     }
   };
 
@@ -96,7 +92,7 @@ const SubnetCalculatorForm = () => {
             label="DHCP Position"
             options={dhcpOptions}
             value={dhcpPosition}
-            onChange={setDhcpPosition}
+            onChange={(value) => setDhcpPosition(value as "start" | "end")}
           />
           
           <NumberInput
@@ -108,7 +104,7 @@ const SubnetCalculatorForm = () => {
           />
           
           <div className="md:col-span-2 mt-4">
-            <CalculateButton onClick={handleCalculate} />
+            <CalculateButton onClick={handleCalculate} isLoading={isCalculating} />
           </div>
         </div>
       </CardContent>

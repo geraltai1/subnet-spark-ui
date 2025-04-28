@@ -1,12 +1,15 @@
 
-import React from "react";
+import React, { useState } from "react";
 import SubnetCalculatorForm from "@/components/SubnetCalculator/SubnetCalculatorForm";
 import ResultsTable from "@/components/SubnetCalculator/ResultsTable";
+import type { SubnetResult } from "@/hooks/useSubnetCalculator";
 
 const Index = () => {
+  const [results, setResults] = useState<SubnetResult[]>([]);
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Subnet Calculator</h1>
           <p className="text-gray-600 text-lg">
@@ -15,11 +18,11 @@ const Index = () => {
         </div>
         
         <div className="space-y-8">
-          <SubnetCalculatorForm />
+          <SubnetCalculatorForm onCalculate={setResults} />
           
           <div className="mt-10">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Results</h2>
-            <ResultsTable />
+            <ResultsTable results={results} />
           </div>
         </div>
         
