@@ -4,42 +4,39 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card } from "@/components/ui/card";
 
 const ResultsTable = () => {
-  // This is just a placeholder table
-  const headers = ["Subnet", "Network Address", "Broadcast", "Usable IPs", "Mask", "DHCP Range"];
-  
-  // Create empty rows for the placeholder
-  const emptyRows = Array(4).fill(null).map((_, index) => ({
-    id: index,
-    subnet: `Subnet ${index + 1}`,
-    network: "-",
-    broadcast: "-",
-    usableIps: "-",
-    mask: "-",
-    dhcpRange: "-",
-  }));
-
   return (
     <Card className="overflow-hidden border border-calculator-border rounded-xl shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-calculator-secondary">
-              {headers.map((header, index) => (
-                <TableHead key={index} className="text-gray-700 font-medium py-3">
-                  {header}
-                </TableHead>
-              ))}
+              <TableHead className="text-center">SR</TableHead>
+              <TableHead>Adresse Réseau</TableHead>
+              <TableHead>Plage Valide</TableHead>
+              <TableHead>Adresse PPD</TableHead>
+              <TableHead>Plage DHCP</TableHead>
+              <TableHead>Pool Statique Total</TableHead>
+              <TableHead>Périph. Interm.</TableHead>
+              <TableHead>Serveurs</TableHead>
+              <TableHead>Imprimantes</TableHead>
+              <TableHead>Autres</TableHead>
+              <TableHead>Adresse Diffusion</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {emptyRows.map((row) => (
-              <TableRow key={row.id} className="border-t border-calculator-border hover:bg-gray-50">
-                <TableCell className="font-medium">{row.subnet}</TableCell>
-                <TableCell>{row.network}</TableCell>
-                <TableCell>{row.broadcast}</TableCell>
-                <TableCell>{row.usableIps}</TableCell>
-                <TableCell>{row.mask}</TableCell>
-                <TableCell>{row.dhcpRange}</TableCell>
+            {Array(4).fill(null).map((_, index) => (
+              <TableRow key={index} className={index % 2 === 1 ? "bg-gray-50" : ""}>
+                <TableCell className="text-center">{index + 1}</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
               </TableRow>
             ))}
           </TableBody>

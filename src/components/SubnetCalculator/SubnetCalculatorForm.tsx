@@ -5,6 +5,7 @@ import IpAddressInput from "./IpAddressInput";
 import NumberInput from "./NumberInput";
 import Select from "./Select";
 import CalculateButton from "./CalculateButton";
+import { ipToInt, cidrToMaskInt, getNetworkAddressInt } from "@/lib/ipUtils";
 
 const SubnetCalculatorForm = () => {
   const [lanAddress, setLanAddress] = useState("");
@@ -14,14 +15,47 @@ const SubnetCalculatorForm = () => {
   const [ppd, setPpd] = useState("");
 
   const handleCalculate = () => {
-    console.log("Calculating with values:", {
-      lanAddress,
-      subnetCount,
-      dhcpPool,
-      dhcpPosition,
-      ppd,
-    });
-    // This would be where the actual calculation logic would go
+    try {
+      // Basic validation
+      if (!lanAddress || !lanAddress.includes('/')) {
+        console.error("Invalid LAN address (CIDR format required)");
+        return;
+      }
+
+      const [lanIpStr, initialCidrStr] = lanAddress.split('/');
+      const initialCidr = parseInt(initialCidrStr, 10);
+      const lanIpInt = ipToInt(lanIpStr);
+      
+      if (isNaN(initialCidr) || initialCidr < 0 || initialCidr > 32) {
+        console.error("Invalid initial CIDR");
+        return;
+      }
+
+      // Calculate subnet bits needed
+      const numSubnetsVal = parseInt(subnetCount, 10);
+      const subnetBitsNeeded = Math.ceil(Math.log2(numSubnetsVal));
+      const newCidr = initialCidr + subnetBitsNeeded;
+
+      if (newCidr > 30) {
+        console.error(`Cannot create ${numSubnetsVal} subnets (/${newCidr}). Max mask /30.`);
+        return;
+      }
+
+      const initialNetworkBlockInt = getNetworkAddressInt(lanIpInt, cidrToMaskInt(initialCidr));
+      
+      console.log("Calculating with values:", {
+        lanAddress,
+        subnetCount,
+        dhcpPool,
+        dhcpPosition,
+        ppd,
+        initialNetworkBlockInt
+      });
+      
+      // This will be expanded with the full calculation logic in the next iteration
+    } catch (error) {
+      console.error("Calculation error:", error);
+    }
   };
 
   const dhcpOptions = [
