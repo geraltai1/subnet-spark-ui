@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Add custom colors for the subnet calculator
+				calculator: {
+					primary: '#007AFF', // iOS blue
+					secondary: '#F2F2F7', // iOS light gray
+					border: '#E5E5EA', // iOS border color
+					background: '#FFFFFF',
+					card: '#FFFFFF',
+					highlight: '#34C759', // iOS green
 				}
 			},
 			borderRadius: {
